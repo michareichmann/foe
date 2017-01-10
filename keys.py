@@ -4,6 +4,7 @@ __author__ = 'micha'
 # IMPORTS
 # ============================================
 from pykeyboard import PyKeyboard
+from time import sleep
 
 
 # ============================================
@@ -21,6 +22,14 @@ class Keys:
 
     def press_enter(self):
         self.k.tap_key(self.k.enter_key)
+
+    def hold_key(self, key, t=1):
+        self.k.press_key(key)
+        sleep(t)
+        self.k.release_key(key)
+
+    def hold_down(self, t=1):
+        self.hold_key(self.k.down_key, t)
 
     def press_down(self, num=1):
         for i in range(num):
