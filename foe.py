@@ -6,6 +6,7 @@ from time import sleep, time
 from keys import Keys
 from mouse import Mouse
 from argparse import ArgumentParser
+from os import system
 
 
 __author__ = 'micha'
@@ -36,6 +37,11 @@ class FOE(Keys, Mouse):
         lines = f.readlines()
         f.close()
         return [[int(cood) for cood in line.strip('\n').split('  ')] for line in lines]
+
+    def finish_sound(self):
+        for i in xrange(3):
+            beep(300 + 100 * i)
+            sleep(.1)
 
     def get_pos(self, x, y):
         if x > self.XPix * 2:
@@ -88,6 +94,9 @@ class FOE(Keys, Mouse):
             self.click(*p)
             sleep(1)
             self.click(*self.StockTimes[t])
+        if t == 15:
+            sleep(15 * 60)
+            self.finish_sound()
 
     def plant_loop(self, first_time=60, iterations=8):
         first_loop = True
@@ -116,6 +125,10 @@ class FOE(Keys, Mouse):
 
 def idle():
     pass
+
+
+def beep(freq=500, dur=.5):
+    system('play --no-show-progress --null --channels 1 synth {d} sine {f}'.format(d=dur, f=freq))
 
 
 if __name__ == '__main__':
