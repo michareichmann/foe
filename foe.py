@@ -5,6 +5,7 @@
 from time import sleep
 from keys import Keys
 from mouse import Mouse
+from argparse import ArgumentParser
 
 
 __author__ = 'micha'
@@ -14,12 +15,15 @@ __author__ = 'micha'
 # MAIN CLASS DEFINITION
 # ============================================
 class FOE(Keys, Mouse):
-    def __init__(self):
+    def __init__(self, location):
         Keys.__init__(self)
         Mouse.__init__(self)
-        self.OffSpring = (982, 996)
-        self.XMax = (1761, 604)
-        self.YMax = (257, 631)
+        self.OffSprings = {'ETH': (999, 1051), 'home': (982, 996)}
+        self.XMaxs = {'ETH': (1797, 666), 'home': (1761, 604)}
+        self.Ymaxs = {'ETH': (298, 697), 'home': (257, 631)}
+        self.OffSpring = self.OffSprings[location]
+        self.XMax = self.XMaxs[location]
+        self.YMax = self.Ymaxs[location]
         self.XPix = 25
         self.YPix = 23
         self.FarmPoints = self.read_points('FarmPoints.txt')
@@ -91,6 +95,9 @@ class FOE(Keys, Mouse):
             z.farm_houses()
 
 
-
 if __name__ == '__main__':
-    z = FOE()
+    locations = ['ETH', 'home']
+    p = ArgumentParser()
+    p.add_argument('location', nargs='?', type=int, default=1)
+    args = p.parse_args()
+    z = FOE(locations[args.location])
