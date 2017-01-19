@@ -7,9 +7,15 @@ from keys import Keys
 from mouse import Mouse
 from argparse import ArgumentParser
 from os import system
+from sys import platform
+if platform.startswith('win'):
+    import winsound
 
 
 __author__ = 'micha'
+
+
+windows = platform.startswith('win')
 
 
 # ============================================
@@ -38,7 +44,8 @@ class FOE(Keys, Mouse):
         f.close()
         return [[int(cood) for cood in line.strip('\n').split('  ')] for line in lines]
 
-    def finish_sound(self):
+    @staticmethod
+    def finish_sound():
         for i in xrange(3):
             beep(300 + 100 * i)
             sleep(.1)
@@ -128,7 +135,10 @@ def idle():
 
 
 def beep(freq=500, dur=.5):
-    system('play --no-show-progress --null --channels 1 synth {d} sine {f}'.format(d=dur, f=freq))
+    if not windows:
+        system('play --no-show-progress --null --channels 1 synth {d} sine {f}'.format(d=dur, f=freq))
+    else:
+        winsound.Beep(freq, int(dur * 1000))
 
 
 if __name__ == '__main__':
