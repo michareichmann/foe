@@ -2,7 +2,7 @@
 # ============================================
 # IMPORTS
 # ============================================
-from time import sleep
+from time import sleep, time
 from keys import Keys
 from mouse import Mouse
 
@@ -26,14 +26,15 @@ class FOE(Keys, Mouse):
         self.StockPoints = self.read_points('StockPoints.txt')
         self.StockTimes = {5: (730, 472), 15: (951, 485), 1: (1178, 487), 4: (737, 651), 8: (961, 660), 24: (1181, 669)}
 
-    def read_points(self, name):
+    @staticmethod
+    def read_points(name):
         f = open(name)
         lines = f.readlines()
         f.close()
         return [[int(cood) for cood in line.strip('\n').split('  ')] for line in lines]
 
     def get_pos(self, x, y):
-        if x > self.XPix:
+        if x > self.XPix * 2:
             return x, y
         x_pos = self.OffSpring[0] + (self.XMax[0] - self.OffSpring[0]) / float(self.XPix) * x
         y_pos = self.OffSpring[1] + (self.XMax[1] - self.OffSpring[1]) / float(self.XPix) * x
@@ -63,7 +64,7 @@ class FOE(Keys, Mouse):
 
     def farm_houses(self):
         for i, p in enumerate(self.FarmPoints):
-            sleep(.5)
+            sleep(.1)
             self.press(*p) if not i else self.move_to(*p)
         self.release(*self.FarmPoints[-1])
 
@@ -74,23 +75,43 @@ class FOE(Keys, Mouse):
         sleep(.2)
         self.release(*self.StockPoints[-1])
 
-    def plant_stock(self, t):
+    def plant_stock(self, t=15, farm=True):
+        if farm:
+            self.farm_stock()
+            sleep(3)
         for i, p in enumerate(self.StockPoints):
             sleep(.5)
             self.click(*p)
             sleep(1)
             self.click(*self.StockTimes[t])
 
-    def farm_loop(self, t=7):
-        for _ in xrange(t):
-            for _ in xrange(12):
-                z.farm_stock()
-                sleep(1)
-                z.plant_stock(5)
-                sleep(5 * 60 + 30)
-            z.farm_houses()
+    def plant_loop(self, first_time=60, iterations=8):
+        first_loop = True
+        for _ in xrange(iterations):
+            start = time()
+            t = start - time()
+            n_loops = 1
+            while t < (60 if not first_loop else first_time) * 60 + 5:
+                print 'starting loop {n}'.format(n=n_loops),
+                if not first_loop:
+                    self.farm_stock()
+                    sleep(3)
+                first_loop = False
+                self.plant_stock(5, farm=False)
+                start2 = time()
+                t = 0
+                while t < 5 * 60 + 2:
+                    t = int(time() - start2)
+                    print '\rloop {n}, time: {m:02d}:{s:02d}'.format(m=t / 60, s=t - t / 60 * 60, n=n_loops),
+                    sleep(1)
+                print
+                n_loops += 1
+                t = time() - start
+            self.farm_houses()
 
 
+def idle():
+    pass
 
 if __name__ == '__main__':
     z = FOE()
