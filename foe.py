@@ -8,6 +8,7 @@ from mouse import Mouse
 from argparse import ArgumentParser
 from os import system
 from sys import platform
+from numpy import sign
 if platform.startswith('win'):
     import winsound
 
@@ -42,7 +43,14 @@ class FOE(Keys, Mouse):
         f = open(name)
         lines = f.readlines()
         f.close()
-        return [[int(cood) for cood in line.strip('\n').split('  ')] for line in lines]
+        coods = []
+        for line in lines:
+            data = [int(word) for word in line.strip('\n').split('  ')]
+            if len(data) == 3:
+                coods += [[data[0] + sign(data[2]) * 2 * i, data[1]] for i in xrange(abs(data[2]))]
+            else:
+                coods += [data]
+        return coods
 
     @staticmethod
     def finish_sound():
@@ -79,7 +87,25 @@ class FOE(Keys, Mouse):
         x, y = self.get_pos(x, y)
         self.m.click(x, y, button, n)
 
+    def move_map(self, p1, p2):
+        self.press(*p1)
+        sleep(.1)
+        self.move_to(p1[0] + 1, p1[1] + 1)
+        sleep(.1)
+        self.move_to(*p2)
+        self.release(*p2)
+
+    def goto_start_position(self,):
+        self.move_map((80, 140), (1904, 1019))
+        sleep(.1)
+        self.move_map((1370, 786), (498, 435))
+
+    def switch_player_menu(self, on=True):
+        self.click(277, 898) if not on else self.click(277, 1022)
+
     def farm_houses(self):
+        self.goto_start_position()
+        sleep(.2)
         for i, p in enumerate(self.FarmPoints):
             sleep(.1)
             self.press(*p) if not i else self.move_to(*p)
@@ -92,7 +118,14 @@ class FOE(Keys, Mouse):
         sleep(.2)
         self.release(*self.StockPoints[-1])
 
-    def plant_stock(self, t=15, farm=True):
+    @staticmethod
+    def get_time(t):
+        return 60 * (t if t in [5, 15] else t * 60) + 2
+
+    def plant_stock(self, t=15, farm=True, sound=True):
+        self.switch_player_menu(on=False)
+        self.goto_start_position()
+        sleep(.2)
         if farm:
             self.farm_stock()
             sleep(3)
@@ -101,8 +134,9 @@ class FOE(Keys, Mouse):
             self.click(*p)
             sleep(1)
             self.click(*self.StockTimes[t])
-        if t == 15:
-            sleep(15 * 60)
+        self.switch_player_menu(on=True)
+        if sound:
+            sleep(self.get_time(t))
             self.finish_sound()
 
     def plant_loop(self, first_time=60, iterations=8):
@@ -117,7 +151,7 @@ class FOE(Keys, Mouse):
                     self.farm_stock()
                     sleep(3)
                 first_loop = False
-                self.plant_stock(5, farm=False)
+                self.plant_stock(5, farm=False, sound=False)
                 start2 = time()
                 t = 0
                 while t < 5 * 60 + 2:
