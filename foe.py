@@ -37,7 +37,7 @@ class FOE(Keys, Mouse):
         self.YPix = 23
         self.FarmPoints = self.read_points('FarmPoints.txt')
         self.StockPoints = self.read_points('StockPoints.txt')
-        self.StockTimes = {5: (730, 472), 15: (951, 485), 1: (1178, 487), 4: (737, 651), 8: (961, 660), 24: (1181, 669)}
+        self.StockTimes = {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)}
 
     @staticmethod
     def read_points(name):
