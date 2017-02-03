@@ -26,13 +26,13 @@ class FOE(Keys, Mouse):
     def __init__(self, location):
         Keys.__init__(self)
         Mouse.__init__(self)
-        self.OffSprings = {'ETH': (999, 1051), 'home': (982, 996)}
-        self.XMaxs = {'ETH': (1797, 666), 'home': (1761, 604)}
-        self.Ymaxs = {'ETH': (298, 697), 'home': (257, 631)}
+        self.OffSprings = {'ETH': (999, 1051), 'home': (977, 905)}
+        self.XMaxs = {'ETH': (1797, 666), 'home': (1596, 593)}
+        self.Ymaxs = {'ETH': (298, 697), 'home': (331, 582)}
         self.OffSpring = self.OffSprings[location]
         self.XMax = self.XMaxs[location]
         self.YMax = self.Ymaxs[location]
-        self.XPix = 25
+        self.XPix = 22
         self.YPix = 23
         self.FarmPoints = self.read_points('FarmPoints.txt')
         self.StockPoints = self.read_points('StockPoints.txt')
@@ -96,9 +96,9 @@ class FOE(Keys, Mouse):
         self.release(*p2)
 
     def goto_start_position(self,):
-        self.move_map((80, 140), (1904, 1019))
+        self.move_map((160, 234), (2500, 2000))
         sleep(.1)
-        self.move_map((1370, 786), (498, 435))
+        self.move_map((1188, 589), (500, 275))
 
     def switch_player_menu(self, on=True):
         self.click(277, 898) if not on else self.click(277, 1022)
@@ -123,7 +123,7 @@ class FOE(Keys, Mouse):
         return 60 * (t if t in [5, 15] else t * 60) + 2
 
     def plant_stock(self, t=15, farm=True, sound=True):
-        self.switch_player_menu(on=False)
+        # self.switch_player_menu(on=False)
         self.goto_start_position()
         sleep(.2)
         if farm:
@@ -134,7 +134,7 @@ class FOE(Keys, Mouse):
             self.click(*p)
             sleep(1)
             self.click(*self.StockTimes[t])
-        self.switch_player_menu(on=True)
+        # self.switch_player_menu(on=True)
         if sound:
             sleep(self.get_time(t))
             self.finish_sound()
@@ -162,6 +162,15 @@ class FOE(Keys, Mouse):
                 n_loops += 1
                 t = time() - start
             self.farm_houses()
+
+    def motivate(self, n=10):
+        x0, y = 739, 1027
+        for _ in xrange(n):
+            for x in xrange(x0, step=-106):
+                self.click(x, y)
+                sleep(.1)
+            sleep(.5)
+            self.click(5,5)
 
 
 def idle():
