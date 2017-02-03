@@ -26,9 +26,10 @@ class FOE(Keys, Mouse):
     def __init__(self, location):
         Keys.__init__(self)
         Mouse.__init__(self)
-        self.OffSprings = {'ETH': (999, 1051), 'home': (977, 905)}
-        self.XMaxs = {'ETH': (1797, 666), 'home': (1596, 593)}
-        self.Ymaxs = {'ETH': (298, 697), 'home': (331, 582)}
+        self.Location = location
+        self.OffSprings = {'ETH': (1000, 836), 'home': (977, 905)}
+        self.XMaxs = {'ETH': (1514, 578), 'home': (1596, 593)}
+        self.Ymaxs = {'ETH': (457, 569), 'home': (331, 582)}
         self.OffSpring = self.OffSprings[location]
         self.XMax = self.XMaxs[location]
         self.YMax = self.Ymaxs[location]
@@ -88,17 +89,20 @@ class FOE(Keys, Mouse):
         self.m.click(x, y, button, n)
 
     def move_map(self, p1, p2):
-        self.press(*p1)
-        sleep(.1)
-        self.move_to(p1[0] + 1, p1[1] + 1)
-        sleep(.1)
+        t = .1
+        self.press(p1[0] + 10, p1[1] + 10)
+        sleep(t)
+        self.move_to(*p1)
+        sleep(t)
         self.move_to(*p2)
+        sleep(t)
         self.release(*p2)
 
     def goto_start_position(self,):
-        self.move_map((160, 234), (2500, 2000))
+        self.move_map((160, 234), (1890, 1056))
         sleep(.1)
-        self.move_map((1188, 589), (500, 275))
+        p2 = (500, 275) if self.Location == 'home' else (755, 327)
+        self.move_map((1188, 589), p2)
 
     def switch_player_menu(self, on=True):
         self.click(277, 898) if not on else self.click(277, 1022)
@@ -170,7 +174,7 @@ class FOE(Keys, Mouse):
                 self.click(x, y)
                 sleep(.1)
             sleep(.5)
-            self.click(5,5)
+            self.click(5, 5)
 
 
 def idle():
