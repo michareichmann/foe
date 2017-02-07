@@ -168,13 +168,14 @@ class FOE(Keys, Mouse):
             self.farm_houses()
 
     def motivate(self, n=10):
-        x0, y = 739, 1027
+        x0, y = 667, 1028
         for _ in xrange(n):
-            for x in xrange(x0, step=-106):
+            for i in xrange(5):
+                x = x0 - 100 * i
                 self.click(x, y)
-                sleep(.1)
-            sleep(.5)
-            self.click(5, 5)
+                sleep(1)
+            self.click(220, 984)
+            sleep(1)
 
 
 def idle():
