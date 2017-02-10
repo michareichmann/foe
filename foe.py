@@ -193,5 +193,15 @@ if __name__ == '__main__':
     locations = ['ETH', 'home']
     parser = ArgumentParser()
     parser.add_argument('location', nargs='?', type=int, default=1)
+    parser.add_argument('opt', nargs='?', type=int, default=0)
+    parser.add_argument('arg1', nargs='?', type=int, default=15)
+    parser.add_argument('arg2', nargs='?', type=int, default=1)
     args = parser.parse_args()
     z = FOE(locations[args.location])
+    if args.opt == 0:
+        z.plant_stock(args.arg1, args.arg2)
+    elif args.opt == 1:
+        z.farm_houses()
+    if args.opt == 2:
+        z.farm_houses()
+        z.plant_stock(args.arg1, args.arg2)
