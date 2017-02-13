@@ -46,6 +46,8 @@ class FOE(Keys, Mouse):
         f.close()
         coods = []
         for line in lines:
+            if len(line) < 2:
+                continue
             data = [int(word) for word in line.strip('\n').split('  ')]
             if len(data) == 3:
                 coods += [[data[0] + sign(data[2]) * 2 * i, data[1]] for i in xrange(abs(data[2]))]
@@ -143,6 +145,10 @@ class FOE(Keys, Mouse):
             sleep(self.get_time(t))
             self.finish_sound()
 
+    def plant_stock_loop(self, t=15, farm=True):
+        while not raw_input('Wanna continue? '):
+            self.plant_stock(t, farm)
+
     def plant_loop(self, first_time=60, iterations=8):
         first_loop = True
         for _ in xrange(iterations):
@@ -205,3 +211,7 @@ if __name__ == '__main__':
     if args.opt == 2:
         z.farm_houses()
         z.plant_stock(args.arg1, args.arg2)
+    if args.opt == 3:
+        z.plant_loop()
+    if args.opt == 4:
+        z.plant_stock_loop(args.arg1, args.arg2)
