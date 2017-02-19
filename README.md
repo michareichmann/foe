@@ -2,3 +2,4 @@
 ### Required packages
 - python2.7
 - pyuserinput
+- numpy
