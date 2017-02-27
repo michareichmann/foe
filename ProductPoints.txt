@@ -1,5 +1,4 @@
-20  7  Bauernhof
-15  6  Zuckerbackerei
+11  6  Zuckerbackerei
 5   1  Kuferei
 8   1  Kuferei
 11  1  Kuferei
