@@ -1,11 +1,9 @@
 11  6  Zuckerbackerei
-17  1  Kuferei
-20  1  Kuferei
+26  1  Kuferei
+26  5  Kuferei
 23  0  Schmiede
 23  2  Schmiede
 29  1  Kuferei
 29  5  Kuferei
 29  9  Kuferei
 29  13  Kuferei
-26  1  Kuferei
-26  5  Kuferei
