@@ -117,7 +117,7 @@ class FOE(Keys, Mouse):
         self.release(*p2)
 
     def goto_start_position(self,):
-        self.move_map((160, 234), (1890, 1056))
+        self.move_map((160, 274), (1890, 1056))
         sleep(.1)
         p2 = (500, 275) if self.Location == 'home' else (755, 327)
         self.move_map((1188, 589), p2)
