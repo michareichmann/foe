@@ -9,6 +9,8 @@ from argparse import ArgumentParser
 from os import system
 from sys import platform
 from numpy import sign
+from collections import OrderedDict
+from ConfigParser import ConfigParser
 if platform.startswith('win'):
     import winsound
 
@@ -36,23 +38,37 @@ class FOE(Keys, Mouse):
         self.XPix = 22
         self.YPix = 23
         self.FarmPoints = self.read_points('FarmPoints.txt')
-        self.StockPoints = self.read_points('StockPoints.txt')
+        self.ProductPoints = self.read_points('ProductPoints.txt')
         self.StockTimes = {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)}
+        self.Production = self.load_productions()
+
+    @staticmethod
+    def load_productions():
+        p = ConfigParser()
+        p.read('production.conf')
+        dic = {}
+        for option in p.options('MAIN'):
+            value = p.getint('MAIN', option)
+            values = [value / float(i) for i in [30, 12, 5, 3, 2, 1]]
+            dic[option] = {t: int(round(val, -1)) if (not value % 60 == 0 and value > 500) else int(val) for val, t in zip(values, [5, 15, 1, 4, 8, 24])}
+        return dic
 
     @staticmethod
     def read_points(name):
         f = open(name)
         lines = f.readlines()
         f.close()
-        coods = []
+        coods = OrderedDict()
         for line in lines:
             if len(line) < 2:
                 continue
-            data = [int(word) for word in line.strip('\n').split('  ')]
-            if len(data) == 3:
-                coods += [[data[0] + sign(data[2]) * 2 * i, data[1]] for i in xrange(abs(data[2]))]
+            data = [word for word in line.strip('\n').split('  ')]
+            if is_number(data[-1]):
+                data = [int(i) for i in data]
+                for i in xrange(abs(data[2]) if len(data) == 3 else 1):
+                    coods[(data[0] + sign(data[2]) * 2 * i, data[1])] = ''
             else:
-                coods += [data]
+                coods[(int(data[0]), int(data[1]))] = data[2].lower()
         return coods
 
     @staticmethod
@@ -115,35 +131,42 @@ class FOE(Keys, Mouse):
         for i, p in enumerate(self.FarmPoints):
             sleep(.1)
             self.press(*p) if not i else self.move_to(*p)
-        self.release(*self.FarmPoints[-1])
+        self.release(*self.FarmPoints.keys()[-1])
 
     def farm_stock(self):
-        for i, p in enumerate(self.StockPoints):
+        for i, p in enumerate(self.ProductPoints):
             sleep(.2)
             self.press(*p) if not i else self.move_to(*p)
         sleep(.2)
-        self.release(*self.StockPoints[-1])
+        self.release(*self.ProductPoints.keys()[-1])
 
     @staticmethod
     def get_time(t):
         return 60 * (t if t in [5, 15] else t * 60) + 2
 
-    def plant_stock(self, t=15, farm=True, sound=True):
+    def plant_stock(self, t=15, farm=True, sound=True, prnt=True):
         # self.switch_player_menu(on=False)
         self.goto_start_position()
         sleep(.2)
         if farm:
             self.farm_stock()
             sleep(3)
-        for i, p in enumerate(self.StockPoints):
+        produced = 0
+        produced120 = 0
+        for i, (p, prod) in enumerate(self.ProductPoints.iteritems()):
             sleep(.5)
             self.click(*p)
             sleep(1)
             self.click(*self.StockTimes[t])
+            produced += self.Production[prod][t]
+            produced120 += int(self.Production[prod][t] * 1.2)
+        if prnt:
+            print 'You just planted {p1} ({p2}) products'.format(p1=produced, p2=produced120)
         # self.switch_player_menu(on=True)
         if sound:
             sleep(self.get_time(t))
             self.finish_sound()
+        return produced, produced120
 
     def plant_stock_loop(self, t=15, farm=True):
         while not raw_input('Wanna continue? '):
@@ -151,27 +174,33 @@ class FOE(Keys, Mouse):
 
     def plant_loop(self, first_time=60, iterations=8):
         first_loop = True
+        produced = 0
+        produced120 = 0
         for _ in xrange(iterations):
             start = time()
             t = start - time()
             n_loops = 1
             while t < (60 if not first_loop else first_time) * 60 + 5:
-                print 'starting loop {n}'.format(n=n_loops),
+                # print 'starting loop {n}'.format(n=n_loops),
                 if not first_loop:
                     self.farm_stock()
                     sleep(3)
                 first_loop = False
-                self.plant_stock(5, farm=False, sound=False)
+                p = self.plant_stock(5, farm=False, sound=False, prnt=False)
+                produced += p[0]
+                produced120 += p[1]
+                print '\rYou already planted {p1} ({p2}) products'.format(p1=produced, p2=produced120),
                 start2 = time()
                 t = 0
                 while t < 5 * 60 + 2:
                     t = int(time() - start2)
-                    print '\rloop {n}, time: {m:02d}:{s:02d}'.format(m=t / 60, s=t - t / 60 * 60, n=n_loops),
+                    # print '\rloop {n}, time: {m:02d}:{s:02d}'.format(m=t / 60, s=t - t / 60 * 60, n=n_loops),
                     sleep(1)
-                print
+                # print
                 n_loops += 1
                 t = time() - start
             self.farm_houses()
+        print
 
     def motivate(self, n=10):
         x0, y = 667, 1028
@@ -183,9 +212,36 @@ class FOE(Keys, Mouse):
             self.click(220, 984)
             sleep(1)
 
+    def calc_productions(self, t_tot=1, boost=False):
+        for t in self.StockTimes:
+            i_boosts = 0
+            t1 = t / 60. if t in [5, 15] else t
+            p1 = 0
+            p2 = 0
+            t2 = t1
+            fac = 1.65 if boost else 1
+            while t2 < t_tot + .001:
+                for prod in self.ProductPoints.itervalues():
+                    if i_boosts >= 40:
+                        fac = 1
+                    p1 += int(self.Production[prod][t] * fac)
+                    p2 += int(int(self.Production[prod][t] * 1.2) * fac)
+                    i_boosts += 1
+                t2 += t1
+            if p1:
+                print t, p1, p2
+
 
 def idle():
     pass
+
+
+def is_number(string):
+    try:
+        int(string)
+        return True
+    except ValueError:
+        return False
 
 
 def beep(freq=500, dur=.5):
