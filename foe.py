@@ -62,7 +62,7 @@ class FOE(Keys, Mouse):
         for line in lines:
             if len(line) < 2:
                 continue
-            data = [word for word in line.strip('\n').split('  ')]
+            data = [word for word in line.strip('\n\r').split('  ')]
             if is_number(data[-1]):
                 data = [int(i) for i in data]
                 for i in xrange(abs(data[2]) if len(data) == 3 else 1):
