@@ -202,15 +202,33 @@ class FOE(Keys, Mouse):
             self.farm_houses()
         print
 
-    def motivate(self, n=10):
-        x0, y = 667, 1028
+    def motivate(self):
+        x, y = 667, 1028
+        for _ in xrange(5):
+            self.click(x, y)
+            x -= 99
+            sleep(1)
+
+    def tavernate(self):
+        x, y = 702, 1010
+        for _ in xrange(5):
+            self.click(x, y)
+            x -= 99
+            sleep(1)
+            self.click(1732, 887)
+            sleep(.2)
+
+    def mopo_tavern(self, n=10, mopo=True, tavern=True):
         for _ in xrange(n):
-            for i in xrange(5):
-                x = x0 - 100 * i
-                self.click(x, y)
-                sleep(1)
+            if mopo:
+                self.motivate()
+            if tavern:
+                self.tavernate()
             self.click(220, 984)
             sleep(1)
+
+    def mopo(self, n=10):
+        self.mopo_tavern(n, True, False)
 
     def calc_productions(self, t_tot=1, boost=False):
         for t in self.StockTimes:
