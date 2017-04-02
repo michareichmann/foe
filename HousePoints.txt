@@ -1,7 +1,10 @@
--8  18  2
--8  15  16
-24  15  2
-26  13  -18
--8  10  6
-1   3   4
-8   1   -4
+-8  18  2   Gutshaus
+-8  15  16  Gutshaus
+24  15  2   Mietshaus
+26  13  -18 Mietshaus
+-8  10  6   Mietshaus
+1   3       Mietshaus
+4   3   2   Mietshaus
+10  2       Renaissance-Villa
+7   1   -2  Mietshaus
+1   1       Mietshaus
