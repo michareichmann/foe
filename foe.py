@@ -31,12 +31,9 @@ class FOE(Keys, Mouse):
         self.Location = location
         self.OffSprings = {'ETH': (1000, 836), 'home': (977, 905)}
         self.XMaxs = {'ETH': (1514, 578), 'home': (1596, 593)}
-        self.Ymaxs = {'ETH': (457, 569), 'home': (331, 582)}
         self.OffSpring = self.OffSprings[location]
-        self.XMax = self.XMaxs[location]
-        self.YMax = self.Ymaxs[location]
-        self.XPix = 22
-        self.YPix = 23
+        self.XVector = self.XMaxs[location][0] - self.OffSpring[0], self.XMaxs[location][1] - self.OffSpring[1]
+        self.XPix = 22.
         self.FarmPoints = self.read_points('FarmPoints.txt')
         self.ProductPoints = self.read_points('ProductPoints.txt')
         self.StockTimes = {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)}
@@ -77,33 +74,36 @@ class FOE(Keys, Mouse):
             beep(300 + 100 * i)
             sleep(.1)
 
-    def get_pos(self, x, y):
-        if x > self.XPix * 2:
-            return x, y
-        x_pos = self.OffSpring[0] + (self.XMax[0] - self.OffSpring[0]) / float(self.XPix) * x
-        y_pos = self.OffSpring[1] + (self.XMax[1] - self.OffSpring[1]) / float(self.XPix) * x
-        x_pos += (self.YMax[0] - self.OffSpring[0]) / float(self.YPix) * y
-        y_pos += (self.YMax[1] - self.OffSpring[1]) / float(self.YPix) * y
-        # print x_pos, y_pos
-        return int(x_pos), int(y_pos)
+    def get_pos_from_mouse_pos(self):
+        x, y = self.get_mouse_position()
+        # length from offspring
+        x, y = x - self.OffSpring[0], y - self.OffSpring[1]
+        x1 = x * self.XPix / (2. * self.XVector[0]) + y * self.XPix / (2. * self.XVector[1])
+        y1 = -x * self.XPix / (2. * self.XVector[0]) + y * self.XPix / (2. * self.XVector[1])
+        return x1, y1
+
+    def get_pix_pos(self, x, y):
+        xpix = (x - y) / self.XPix * self.XVector[0] + self.OffSpring[0]
+        ypix = (x + y) / self.XPix * self.XVector[1] + self.OffSpring[1]
+        return int(xpix), int(ypix)
 
     def move_to(self, x, y):
-        self.m.move(*self.get_pos(x, y))
+        self.m.move(*self.get_pix_pos(x, y))
 
     def drag(self, x, y, button=1):
-        x, y = self.get_pos(x, y)
+        x, y = self.get_pix_pos(x, y)
         self.m.drag(x, y, button)
 
     def press(self, x, y, button=1):
-        x, y = self.get_pos(x, y)
+        x, y = self.get_pix_pos(x, y)
         self.m.press(x, y, button)
 
     def release(self, x, y, button=1):
-        x, y = self.get_pos(x, y)
+        x, y = self.get_pix_pos(x, y)
         self.m.release(x, y, button)
 
     def click(self, x, y, button=1, n=1):
-        x, y = self.get_pos(x, y)
+        x, y = self.get_pix_pos(x, y)
         self.m.click(x, y, button, n)
 
     def move_map(self, p1, p2):
@@ -194,7 +194,7 @@ class FOE(Keys, Mouse):
                 t = 0
                 while t < 5 * 60 + 2:
                     t = int(time() - start2)
-                    # print '\rloop {n}, time: {m:02d}:{s:02d}'.format(m=t / 60, s=t - t / 60 * 60, n=n_loops),
+                    # print '\r loop {n}, time: {m:02d}:{s:02d}'.format(m=t / 60, s=t - t / 60 * 60, n=n_loops),
                     sleep(1)
                 # print
                 n_loops += 1
