@@ -49,8 +49,8 @@ def read_points(name):
     f.close()
     coods = OrderedDict()
     for line in lines:
-        # skip empty lines
-        if len(line) < 2:
+        # skip empty lines and commented lines
+        if len(line) < 2 or line.startswith('#'):
             continue
         data = [word.strip(' ') for word in line.strip('\n\r').split(' ') if word.strip(' ')]
         typ = data[-1].lower()
