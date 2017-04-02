@@ -6,19 +6,11 @@ from time import sleep, time
 from keys import Keys
 from mouse import Mouse
 from argparse import ArgumentParser
-from os import system
-from sys import platform
-from numpy import sign
-from collections import OrderedDict
-from ConfigParser import ConfigParser
-if platform.startswith('win'):
-    import winsound
+from Utils import finish_sound, get_time
+from Production import Production
 
 
 __author__ = 'micha'
-
-
-windows = platform.startswith('win')
 
 
 # ============================================
@@ -34,46 +26,12 @@ class FOE(Keys, Mouse):
         self.OffSpring = self.OffSprings[location]
         self.XVector = self.XMaxs[location][0] - self.OffSpring[0], self.XMaxs[location][1] - self.OffSpring[1]
         self.XPix = 22.
-        self.FarmPoints = self.read_points('FarmPoints.txt')
-        self.ProductPoints = self.read_points('ProductPoints.txt')
+        self.Houses = Production(houses=True)
+        self.Provisions = Production(houses=False)
         self.StockTimes = {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)}
-        self.Production = self.load_productions()
 
-    @staticmethod
-    def load_productions():
-        p = ConfigParser()
-        p.read('production.conf')
-        dic = {}
-        for option in p.options('MAIN'):
-            value = p.getint('MAIN', option)
-            values = [value / float(i) for i in [30, 12, 5, 3, 2, 1]]
-            dic[option] = {t: int(round(val, -1)) if (not value % 60 == 0 and value > 500) else int(val) for val, t in zip(values, [5, 15, 1, 4, 8, 24])}
-        return dic
-
-    @staticmethod
-    def read_points(name):
-        f = open(name)
-        lines = f.readlines()
-        f.close()
-        coods = OrderedDict()
-        for line in lines:
-            if len(line) < 2:
-                continue
-            data = [word.strip(' ') for word in line.strip('\n\r').split('  ')]
-            if is_number(data[-1]):
-                data = [int(i) for i in data]
-                for i in xrange(abs(data[2]) if len(data) == 3 else 1):
-                    coods[(data[0] + sign(data[2]) * 2 * i, data[1])] = ''
-            else:
-                coods[(int(data[0]), int(data[1]))] = data[2].lower()
-        return coods
-
-    @staticmethod
-    def finish_sound():
-        for i in xrange(3):
-            beep(300 + 100 * i)
-            sleep(.1)
-
+    # ======================================
+    # region map manipulation
     def get_pos_from_mouse_pos(self):
         x, y = self.get_mouse_position()
         # length from offspring
@@ -83,6 +41,9 @@ class FOE(Keys, Mouse):
         return x1, y1
 
     def get_pix_pos(self, x, y):
+        # return pixel values if pixel values are provided
+        if any(value > 100 for value in [x, y]):
+            return x, y
         xpix = (x - y) / self.XPix * self.XVector[0] + self.OffSpring[0]
         ypix = (x + y) / self.XPix * self.XVector[1] + self.OffSpring[1]
         return int(xpix), int(ypix)
@@ -125,78 +86,62 @@ class FOE(Keys, Mouse):
     def switch_player_menu(self, on=True):
         self.click(277, 898) if not on else self.click(277, 1022)
 
-    def farm_houses(self):
+    # endregion
+
+    def farm_houses(self, short=True):
         self.goto_start_position()
         sleep(.2)
-        for i, p in enumerate(self.FarmPoints):
+        points = self.Houses.ShortPoints if short else self.Houses.Points
+        for i, (point, typ) in enumerate(points.iteritems()):
             sleep(.1)
-            self.press(*p) if not i else self.move_to(*p)
-        self.release(*self.FarmPoints.keys()[-1])
+            self.press(*point) if not i else self.move_to(*point)
+            self.Houses.add_production(typ)
+        self.release(*points[-1])
+        self.Houses.print_production()
 
-    def farm_stock(self):
-        for i, p in enumerate(self.ProductPoints):
+    def farm_provisions(self):
+        for i, point in enumerate(self.Provisions.Points.iterkeys()):
             sleep(.2)
-            self.press(*p) if not i else self.move_to(*p)
+            self.press(*point) if not i else self.move_to(*point)
         sleep(.2)
-        self.release(*self.ProductPoints.keys()[-1])
+        self.release(*self.Provisions.Points.keys()[-1])
 
-    @staticmethod
-    def get_time(t):
-        return 60 * (t if t in [5, 15] else t * 60) + 2
-
-    def plant_stock(self, t=15, farm=True, sound=True, prnt=True):
-        # self.switch_player_menu(on=False)
+    def plant_provisions(self, t=15, farm=True, sound=True, prnt=True):
         self.goto_start_position()
         sleep(.2)
         if farm:
-            self.farm_stock()
+            self.farm_provisions()
             sleep(3)
-        produced = 0
-        produced120 = 0
-        for i, (p, prod) in enumerate(self.ProductPoints.iteritems()):
+        for i, (point, typ) in enumerate(self.Provisions.Points.iteritems()):
             sleep(.5)
-            self.click(*p)
+            self.click(*point)
             sleep(1)
             self.click(*self.StockTimes[t])
-            produced += self.Production[prod][t]
-            produced120 += int(self.Production[prod][t] * 1.2)
+            self.Provisions.add_production(typ, t)
         if prnt:
-            print 'You just planted {p1} ({p2}) products'.format(p1=produced, p2=produced120)
-        # self.switch_player_menu(on=True)
+            self.Provisions.print_production()
         if sound:
-            sleep(self.get_time(t))
-            self.finish_sound()
-        return produced, produced120
+            sleep(get_time(t))
+            finish_sound()
 
     def plant_stock_loop(self, t=15, farm=True):
         while not raw_input('Wanna continue? '):
-            self.plant_stock(t, farm)
+            self.plant_provisions(t, farm)
 
     def plant_loop(self, first_time=60, iterations=8):
         first_loop = True
-        produced = 0
-        produced120 = 0
         for _ in xrange(iterations):
             start = time()
             t = start - time()
             n_loops = 1
             while t < (60 if not first_loop else first_time) * 60 + 5:
-                # print 'starting loop {n}'.format(n=n_loops),
-                if not first_loop:
-                    self.farm_stock()
-                    sleep(3)
+                self.plant_provisions(5, farm=not first_loop, sound=False, prnt=True)
                 first_loop = False
-                p = self.plant_stock(5, farm=False, sound=False, prnt=False)
-                produced += p[0]
-                produced120 += p[1]
-                print '\rYou already planted {p1} ({p2}) products'.format(p1=produced, p2=produced120),
                 start2 = time()
                 t = 0
                 while t < 5 * 60 + 2:
                     t = int(time() - start2)
-                    # print '\r loop {n}, time: {m:02d}:{s:02d}'.format(m=t / 60, s=t - t / 60 * 60, n=n_loops),
                     sleep(1)
-                # print
                 n_loops += 1
                 t = time() - start
             self.farm_houses()
@@ -250,25 +195,6 @@ class FOE(Keys, Mouse):
                 print t, p1, p2
 
 
-def idle():
-    pass
-
-
-def is_number(string):
-    try:
-        int(string)
-        return True
-    except ValueError:
-        return False
-
-
-def beep(freq=500, dur=.5):
-    if not windows:
-        system('play --no-show-progress --null --channels 1 synth {d} sine {f}'.format(d=dur, f=freq))
-    else:
-        winsound.Beep(freq, int(dur * 1000))
-
-
 if __name__ == '__main__':
     locations = ['ETH', 'home']
     parser = ArgumentParser()
@@ -279,12 +205,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
     z = FOE(locations[args.location])
     if args.opt == 0:
-        z.plant_stock(args.arg1, args.arg2)
+        z.plant_provisions(args.arg1, args.arg2)
     elif args.opt == 1:
-        z.farm_houses()
+        z.farm_houses(not args.arg1)
     if args.opt == 2:
         z.farm_houses()
-        z.plant_stock(args.arg1, args.arg2)
+        z.plant_provisions(args.arg1, args.arg2)
     if args.opt == 3:
         z.plant_loop()
     if args.opt == 4:
