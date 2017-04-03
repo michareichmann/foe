@@ -96,7 +96,7 @@ class FOE(Keys, Mouse):
             sleep(.1)
             self.press(*point) if not i else self.move_to(*point)
             self.Houses.add_production(typ)
-        self.release(*points[-1])
+        self.release(*points.keys()[-1])
         self.Houses.print_production()
 
     def farm_provisions(self):
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     if args.opt == 0:
         z.plant_provisions(args.arg1, args.arg2)
     elif args.opt == 1:
-        z.farm_houses(not args.arg1)
+        z.farm_houses(args.arg1)
     if args.opt == 2:
         z.farm_houses()
         z.plant_provisions(args.arg1, args.arg2)
