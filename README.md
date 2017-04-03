@@ -3,3 +3,4 @@
 - python2.7
 - pyuserinput
 - numpy
+- PyQt4
