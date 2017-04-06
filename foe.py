@@ -29,6 +29,7 @@ class FOE(Keys, Mouse):
         self.Houses = Production(houses=True)
         self.Provisions = Production(houses=False)
         self.StockTimes = {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)}
+        self.Vars = {'Short': True}
 
     # ======================================
     # region map manipulation
@@ -88,7 +89,8 @@ class FOE(Keys, Mouse):
 
     # endregion
 
-    def farm_houses(self, short=True):
+    def farm_houses(self, short=None):
+        short = self.Vars['Short'] if short is None else short
         self.goto_start_position()
         sleep(.2)
         points = self.Houses.ShortPoints if short else self.Houses.Points
