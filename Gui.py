@@ -27,7 +27,7 @@ class Gui(QtGui.QMainWindow):
     def configure(self):
         self.setGeometry(500, 300, 500, 150)
         self.setWindowTitle('Forge of Empires Helper')
-        self.setWindowIcon(QtGui.QIcon('pythonlogo.png'))
+        self.setWindowIcon(QtGui.QIcon('icon.jpg'))
 
 
 class Buttons(object):
@@ -61,7 +61,7 @@ def close_app():
 
 if __name__ == '__main__':
 
-    z = FOE(location='home')
+    z = FOE(location='ETH')
     app = QtGui.QApplication(argv)
     g = Gui(z)
     exit(app.exec_())
