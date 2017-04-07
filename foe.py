@@ -204,14 +204,3 @@ if __name__ == '__main__':
     parser.add_argument('arg2', nargs='?', type=int, default=1)
     args = parser.parse_args()
     z = FOE(locations[args.location])
-    if args.opt == 0:
-        z.plant_provisions(args.arg1, args.arg2)
-    elif args.opt == 1:
-        z.farm_houses(args.arg1)
-    if args.opt == 2:
-        z.farm_houses()
-        z.plant_provisions(args.arg1, args.arg2)
-    if args.opt == 3:
-        z.plant_loop()
-    if args.opt == 4:
-        z.plant_stock_loop(args.arg1, args.arg2)
