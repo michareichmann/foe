@@ -38,4 +38,5 @@ def finish_sound():
 
 
 def get_time(t):
+    # return time in seconds
     return 60 * (t if t in [5, 15] else t * 60) + 2
