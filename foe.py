@@ -8,6 +8,7 @@ from mouse import Mouse
 from argparse import ArgumentParser
 from Utils import finish_sound, get_time
 from Production import Production
+from Gui import Gui, load_app, ex
 
 
 __author__ = 'micha'
@@ -29,7 +30,20 @@ class FOE(Keys, Mouse):
         self.Houses = Production(houses=True)
         self.Provisions = Production(houses=False)
         self.StockTimes = {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)}
+
+        # gui
+        self.App = load_app()
+        self.Gui = Gui(self)
         self.Vars = {'Short': True}
+
+    def check(self, name):
+        return self.Gui.CheckBoxes.B[name].isChecked()
+
+    def get_box_entry(self, name):
+        return self.Gui.ComboBoxes.B[name].currentText()
+
+    def get_box_value(self, name):
+        return self.Gui.SpinBoxes.B[name].value()
 
     # ======================================
     # region map manipulation
@@ -90,7 +104,7 @@ class FOE(Keys, Mouse):
     # endregion
 
     def farm_houses(self, short=None):
-        short = self.Vars['Short'] if short is None else short
+        short = self.check('Short') if short is None else short
         self.goto_start_position()
         sleep(.2)
         points = self.Houses.ShortPoints if short else self.Houses.Points
@@ -108,7 +122,10 @@ class FOE(Keys, Mouse):
         sleep(.2)
         self.release(*self.Provisions.Points.keys()[-1])
 
-    def plant_provisions(self, t=15, farm=True, sound=True, prnt=True):
+    def plant_provisions(self, t=None, farm=None, timer=None, prnt=True):
+        t = int(self.get_box_entry('Times')) if t is None else t
+        farm = self.check('Farm') if farm is None else farm
+        timer = self.check('Timer') if timer is None else timer
         self.goto_start_position()
         sleep(.2)
         if farm:
@@ -122,8 +139,8 @@ class FOE(Keys, Mouse):
             self.Provisions.add_production(typ, t)
         if prnt:
             self.Provisions.print_production()
-        if sound:
-            sleep(get_time(t))
+        if timer:
+            self.Gui.start_pbar(get_time(t))
             finish_sound()
 
     def plant_stock_loop(self, t=15, farm=True):
@@ -137,7 +154,7 @@ class FOE(Keys, Mouse):
             t = start - time()
             n_loops = 1
             while t < (60 if not first_loop else first_time) * 60 + 5:
-                self.plant_provisions(5, farm=not first_loop, sound=False, prnt=True)
+                self.plant_provisions(5, farm=not first_loop, timer=False, prnt=True)
                 first_loop = False
                 start2 = time()
                 t = 0
@@ -165,7 +182,11 @@ class FOE(Keys, Mouse):
             self.click(1732, 887)
             sleep(.2)
 
-    def mopo_tavern(self, n=10, mopo=True, tavern=True):
+    def mopo_tavern(self, n=None, mopo=None, tavern=None):
+        x, y = self.get_mouse_position()
+        mopo = self.check('Mopo') if mopo is None else mopo
+        tavern = self.check('Tavern') if tavern is None else tavern
+        n = self.get_box_value('Mopo') if n is None else n
         for _ in xrange(n):
             if mopo:
                 self.motivate()
@@ -173,9 +194,8 @@ class FOE(Keys, Mouse):
                 self.tavernate()
             self.click(220, 984)
             sleep(1)
-
-    def mopo(self, n=10):
-        self.mopo_tavern(n, True, False)
+        self.press_alt_tab()
+        self.move_to(x, y)
 
     def calc_productions(self, t_tot=1, boost=False):
         for t in self.StockTimes:
@@ -201,8 +221,6 @@ if __name__ == '__main__':
     locations = ['ETH', 'home']
     parser = ArgumentParser()
     parser.add_argument('location', nargs='?', type=int, default=1)
-    parser.add_argument('opt', nargs='?', type=int, default=0)
-    parser.add_argument('arg1', nargs='?', type=int, default=15)
-    parser.add_argument('arg2', nargs='?', type=int, default=1)
     args = parser.parse_args()
     z = FOE(locations[args.location])
+    ex(z.App.exec_())
