@@ -6,7 +6,7 @@ from time import sleep, time
 from keys import Keys
 from mouse import Mouse
 from argparse import ArgumentParser
-from Utils import finish_sound, get_time
+from Utils import finish_sound, get_time, calc_stocktimes
 from Production import Production
 from Gui import Gui, load_app, ex
 
@@ -14,27 +14,32 @@ from Gui import Gui, load_app, ex
 __author__ = 'micha'
 
 
+stock_times = {'ETH': {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)},
+               'home': {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)},
+               'workpc': calc_stocktimes((1150, 1824), (1310, 1834))}
+
+
 # ============================================
 # MAIN CLASS DEFINITION
 # ============================================
 class FOE(Keys, Mouse):
-    def __init__(self, location):
+    def __init__(self, location, load_gui=False):
         Keys.__init__(self)
         Mouse.__init__(self)
         self.Location = location
-        self.OffSprings = {'ETH': (1000, 836), 'home': (977, 905)}
-        self.XMaxs = {'ETH': (1514, 578), 'home': (1596, 593)}
+        self.OffSprings = {'ETH': (1000, 836), 'home': (977, 905), 'workpc': (1332, 1924)}  # -1080
+        self.XMaxs = {'ETH': (1514, 578), 'home': (1596, 593), 'workpc': (1842, 1666)}
         self.OffSpring = self.OffSprings[location]
         self.XVector = self.XMaxs[location][0] - self.OffSpring[0], self.XMaxs[location][1] - self.OffSpring[1]
         self.XPix = 22.
         self.Houses = Production(houses=True)
         self.Provisions = Production(houses=False)
-        self.StockTimes = {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)}
+        self.StockTimes = stock_times[location]
 
         # gui
-        self.App = load_app()
-        self.Gui = Gui(self)
-        self.Vars = {'Short': True}
+        if load_gui:
+            self.App = load_app()
+            self.Gui = Gui(self)
 
     def check(self, name):
         return self.Gui.CheckBoxes.B[name].isChecked()
@@ -93,10 +98,12 @@ class FOE(Keys, Mouse):
         self.release(*p2)
 
     def goto_start_position(self,):
-        self.move_map((160, 274), (1890, 1056))
+        y0 = 1080
+        self.move_map((160, 274 + y0), (1890, 1056 + y0))
         sleep(.1)
-        p2 = (500, 275) if self.Location == 'home' else (755, 327)
-        self.move_map((1188, 589), p2)
+        p2s = {'home': (500, 275), 'ETH': (755, 327), 'workpc': (1059, 1410)}
+        p2 = p2s[self.Location]
+        self.move_map((1188, 589 + y0), p2)
 
     def switch_player_menu(self, on=True):
         self.click(277, 898) if not on else self.click(277, 1022)
@@ -218,9 +225,11 @@ class FOE(Keys, Mouse):
 
 
 if __name__ == '__main__':
-    locations = ['ETH', 'home']
+    locations = ['ETH', 'home', 'workpc']
     parser = ArgumentParser()
     parser.add_argument('location', nargs='?', type=int, default=1)
+    parser.add_argument('-g', '--gui', action='store_true')
     args = parser.parse_args()
-    z = FOE(locations[args.location])
-    ex(z.App.exec_())
+    z = FOE(locations[args.location], args.gui)
+    if args.gui:
+        ex(z.App.exec_())
