@@ -98,7 +98,7 @@ class FOE(Keys, Mouse):
         self.release(*p2)
 
     def goto_start_position(self,):
-        y0 = 1080
+        y0 = 0
         self.move_map((160, 274 + y0), (1890, 1056 + y0))
         sleep(.1)
         p2s = {'home': (500, 275), 'ETH': (755, 327), 'yoga': (1059, 1410)}
