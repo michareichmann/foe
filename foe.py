@@ -16,7 +16,7 @@ __author__ = 'micha'
 
 stock_times = {'ETH': {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)},
                'home': {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)},
-               'yoga': calc_stocktimes((1150, 1824), (1310, 1834))}
+               'yoga': calc_stocktimes((1150, 1824 - 1080), (1310, 1834 - 1080))}
 
 
 # ============================================
@@ -27,8 +27,8 @@ class FOE(Keys, Mouse):
         Keys.__init__(self)
         Mouse.__init__(self)
         self.Location = location
-        self.OffSprings = {'ETH': (1000, 836), 'home': (977, 905), 'yoga': (1332, 1924)}  # -1080
-        self.XMaxs = {'ETH': (1514, 578), 'home': (1596, 593), 'yoga': (1842, 1666)}
+        self.OffSprings = {'ETH': (1000, 836), 'home': (977, 905), 'yoga': (1332, 1924 - 1080)}  # -1080
+        self.XMaxs = {'ETH': (1514, 578), 'home': (1596, 593), 'yoga': (1842, 1666 - 1080)}
         self.OffSpring = self.OffSprings[location]
         self.XVector = self.XMaxs[location][0] - self.OffSpring[0], self.XMaxs[location][1] - self.OffSpring[1]
         self.XPix = 22.
@@ -101,7 +101,7 @@ class FOE(Keys, Mouse):
         y0 = 0
         self.move_map((160, 274 + y0), (1890, 1056 + y0))
         sleep(.1)
-        p2s = {'home': (500, 275), 'ETH': (755, 327), 'yoga': (1059, 1410)}
+        p2s = {'home': (500, 275), 'ETH': (755, 327), 'yoga': (1059, 1410 - 1080)}
         p2 = p2s[self.Location]
         self.move_map((1188, 589 + y0), p2)
 

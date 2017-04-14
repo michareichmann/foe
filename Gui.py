@@ -21,7 +21,7 @@ class Gui(QtGui.QMainWindow):
 
         self.MenuBar = MenuBar(self)
         self.CheckBoxes = CheckBoxes(self)
-        self.ProgressBar = self.create_progress_bar()
+        # self.ProgressBar = self.create_progress_bar()
         self.ComboBoxes = ComboBoxes(self)
         self.SpinBoxes = SpinBoxes(self)
         self.Buttons = Buttons(self)
@@ -113,9 +113,9 @@ class CheckBoxes(object):
         self.load()
 
     def load(self):
-        self.make_checkbox('Short', 80, 26, checked=True)
-        self.make_checkbox('Farm', 80, 56, checked=True)
-        self.make_checkbox('Timer', 140, 56, checked=False)
+        self.make_checkbox('Short', 140, 26, checked=True)
+        self.make_checkbox('Farm', 140, 56, checked=True)
+        self.make_checkbox('Timer', 200, 56, checked=False)
         self.make_checkbox('Mopo', 80, 86, checked=True)
         self.make_checkbox('Tavern', 140, 86, checked=True)
 
