@@ -1,11 +1,6 @@
--8  18      Gutshaus
--8  15  14  Arkadenhaus
-20  15  2   Gutshaus
-24  15  2   Mietshaus
-26  13  -18 Mietshaus
--8  10  6   Mietshaus
-1   3       Mietshaus
-4   3   2   Mietshaus
-11  7       Renaissance-Villa
-7   1   -2  Mietshaus
-1   1       Mietshaus
+-8  18      Arkadenhaus
+-8  15  17  Arkadenhaus
+26  15      Mansarddachhaus
+26  13  -18 Landhaus
+-8  10  6   Landhaus
+-1  22      Renaissance-Villa
