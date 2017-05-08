@@ -5,4 +5,5 @@
 30  7   segelmacher
 30  4   Brauerei
 30  2   kuferei
+30  -2   kuferei
 25  -3  Zuckerbackerei
