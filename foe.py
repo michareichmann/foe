@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-# ============================================
-# IMPORTS
-# ============================================
+
 from time import sleep, time
 from keys import Keys
 from mouse import Mouse
@@ -9,14 +7,11 @@ from argparse import ArgumentParser
 from Utils import finish_sound, get_time, calc_stocktimes
 from Production import Production
 from Gui import Gui, load_app, ex
+from ConfigParser import ConfigParser, NoOptionError
+from json import loads
 
 
 __author__ = 'micha'
-
-
-stock_times = {'ETH': {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)},
-               'home': {5: (750, 520), 15: (951, 520), 1: (1178, 520), 4: (750, 680), 8: (961, 680), 24: (1181, 680)},
-               'yoga': calc_stocktimes((1150, 1824 - 1080), (1310, 1834 - 1080))}
 
 
 # ============================================
@@ -27,14 +22,12 @@ class FOE(Keys, Mouse):
         Keys.__init__(self)
         Mouse.__init__(self)
         self.Location = location
-        self.OffSprings = {'ETH': (1000, 836), 'home': (977, 905), 'yoga': (1332, 1924 - 1080)}  # -1080
-        self.XMaxs = {'ETH': (1514, 578), 'home': (1596, 593), 'yoga': (1842, 1666 - 1080)}
-        self.OffSpring = self.OffSprings[location]
-        self.XVector = self.XMaxs[location][0] - self.OffSpring[0], self.XMaxs[location][1] - self.OffSpring[1]
         self.XPix = 22.
+        self.OffSpring = self.load_config('Offspring')
+        self.XVector = self.load_xvec()
         self.Houses = Production(houses=True)
         self.Provisions = Production(houses=False)
-        self.StockTimes = stock_times[location]
+        self.StockTimes = self.load_stocktimes()
 
         # gui
         if load_gui:
@@ -49,6 +42,22 @@ class FOE(Keys, Mouse):
 
     def get_box_value(self, name):
         return self.Gui.SpinBoxes.B[name].value()
+
+    def load_config(self, section):
+        conf = ConfigParser()
+        conf.read('Locations.conf')
+        try:
+            return tuple(loads(conf.get(section, self.Location)))
+        except NoOptionError:
+            print 'Could not find {l} in section {s}'.format(l=self.Location, s=section)
+            raise NoOptionError
+
+    def load_xvec(self):
+        return tuple([x22 - self.OffSpring[i] for i, x22 in enumerate(self.load_config('X22'))])
+
+    def load_stocktimes(self):
+        lst = self.load_config('StockTimes')
+        return calc_stocktimes(lst[:2], lst[2:])
 
     # ======================================
     # region map manipulation
@@ -97,13 +106,16 @@ class FOE(Keys, Mouse):
         sleep(t)
         self.release(*p2)
 
+    def goto_edge(self):
+        lst = self.load_config('Edge')
+        self.move_map(lst[:2], lst[2:])
+
     def goto_start_position(self,):
-        y0 = 0
-        self.move_map((160, 274 + y0), (1890, 1056 + y0))
+        self.goto_edge()
         sleep(.1)
-        p2s = {'home': (500, 275), 'ETH': (755, 327), 'yoga': (1059, 1410 - 1080)}
-        p2 = p2s[self.Location]
-        self.move_map((1188, 589 + y0), p2)
+        lst = self.load_config('Start')
+        self.move_map(lst[:2], lst[2:])
+        sleep(.1)
 
     def switch_player_menu(self, on=True):
         self.click(277, 898) if not on else self.click(277, 1022)
@@ -111,6 +123,7 @@ class FOE(Keys, Mouse):
     # endregion
 
     def farm_houses(self, short=None):
+        x, y = self.get_mouse_position()
         short = self.check('Short') if short is None else short
         self.goto_start_position()
         sleep(.2)
@@ -121,6 +134,8 @@ class FOE(Keys, Mouse):
             self.Houses.add_production(typ)
         self.release(*points.keys()[-1])
         self.Houses.print_production()
+        self.move_to(x, y)
+        self.press_alt_tab()
 
     def farm_provisions(self):
         for i, point in enumerate(self.Provisions.Points.iterkeys()):
@@ -174,19 +189,29 @@ class FOE(Keys, Mouse):
         print
 
     def motivate(self):
-        x, y = 667, 1028
+        lst = self.load_config('MoPo')
+        x, y = lst[2:4]
         for _ in xrange(5):
             self.click(x, y)
-            x -= 99
+            x -= lst[2] - lst[4]
             sleep(1)
 
+    def open_next_player_menu(self):
+        lst = self.load_config('MoPo')
+        x, y = lst[:2]
+        y -= lst[3] - lst[1]
+        x -= (lst[2] - lst[4]) * 5
+        self.click(x, y)
+
     def tavernate(self):
-        x, y = 702, 1010
+        lst = self.load_config('MoPo')
+        x, y = lst[:2]
         for _ in xrange(5):
             self.click(x, y)
-            x -= 99
+            x -= lst[2] - lst[4]
             sleep(1)
-            self.click(1732, 887)
+            # closing tavern menu
+            self.click(x, y)
             sleep(.2)
 
     def mopo_tavern(self, n=None, mopo=None, tavern=None):
@@ -199,33 +224,14 @@ class FOE(Keys, Mouse):
                 self.motivate()
             if tavern:
                 self.tavernate()
-            self.click(220, 984)
+            self.open_next_player_menu()
             sleep(1)
         self.press_alt_tab()
         self.move_to(x, y)
 
-    def calc_productions(self, t_tot=1, boost=False):
-        for t in self.StockTimes:
-            i_boosts = 0
-            t1 = t / 60. if t in [5, 15] else t
-            p1 = 0
-            p2 = 0
-            t2 = t1
-            fac = 1.65 if boost else 1
-            while t2 < t_tot + .001:
-                for prod in self.ProductPoints.itervalues():
-                    if i_boosts >= 40:
-                        fac = 1
-                    p1 += int(self.Production[prod][t] * fac)
-                    p2 += int(int(self.Production[prod][t] * 1.2) * fac)
-                    i_boosts += 1
-                t2 += t1
-            if p1:
-                print t, p1, p2
-
 
 if __name__ == '__main__':
-    locations = ['ETH', 'home', 'yoga']
+    locations = ['ETH', 'home', 'yoga', 'psi', 'analysis']
     parser = ArgumentParser()
     parser.add_argument('location', nargs='?', type=int, default=1)
     parser.add_argument('-g', '--gui', action='store_true')
