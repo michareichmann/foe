@@ -1,9 +1,9 @@
 15   7   Kuferei
-30  16  segelmacher
-30  13  segelmacher
-30  10  segelmacher
-30  7   segelmacher
-30  4   Brauerei
-30  2   kuferei
-30  -2   kuferei
+29  16  segelmacher
+29  13  segelmacher
+29  10  segelmacher
+29  7   segelmacher
+29  4   Brauerei
+29  2   kuferei
+29  -2   kuferei
 25  -3  Zuckerbackerei
