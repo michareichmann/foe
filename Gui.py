@@ -30,7 +30,7 @@ class Gui(QtGui.QMainWindow):
         self.show()
 
     def configure(self):
-        self.setGeometry(500, 300, 500, 150) if windows else self.setGeometry(1400, 1600, 500, 200)
+        self.setGeometry(500, 300, 500, 150) if windows else self.setGeometry(1400, 1600, 500, 270)
         self.setWindowTitle('Forge of Empires Helper')
         self.setWindowIcon(QtGui.QIcon('icon.jpg'))
         QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Plastique'))
@@ -90,11 +90,15 @@ class Buttons(object):
     def load(self):
         spacing = 30 if windows else 40
         y = range(20, 10 * spacing, spacing)
+        x = [80, 140] if windows else [150, 240]
         # self.make_button('Quit', close_app, 419, 90)
         self.make_button('Farm Houses', self.Foe.farm_houses, 2, y[0], [None])
         self.make_button('Provisions', self.Foe.plant_provisions, 2, y[1], [None, None, None])
-        self.make_button('Mopo', self.Foe.mopo_tavern, 2, y[2], [None, None, None])
-        self.make_button('Loop', self.Foe.plant_loop, 2, y[3], [60, 8])
+        self.make_button('Goods', self.Foe.plant_provisions, 2, y[2], [None, None, None, True, True])
+        self.make_button('Mopo', self.Foe.mopo_tavern, 2, y[3], [None, None, None])
+        self.make_button('Loop', self.Foe.plant_loop, 2, y[4], [60, 8])
+        self.make_button('Get Pos', self.Foe.get_pos_from_mouse_pos, 2, y[5], [2])
+        self.make_button('Get Mouse Pos', self.Foe.get_mouse_position, x[0], y[5], [2])
 
     def make_button(self, name, func, x, y, args=None):
         btn = QtGui.QPushButton(name, self.Window)
@@ -118,15 +122,16 @@ class CheckBoxes(object):
         self.make_checkbox('Short', x[0], y[0], checked=True)
         self.make_checkbox('Farm', x[0], y[1], checked=True)
         self.make_checkbox('Timer', x[1], y[1], checked=False)
-        self.make_checkbox('Mopo', x[0], y[2], checked=True)
-        self.make_checkbox('Tavern', x[1], y[2], checked=True)
+        self.make_checkbox('Farm', x[0], y[2], checked=True, name='GoodFarm')
+        self.make_checkbox('Mopo', x[0], y[3], checked=True)
+        self.make_checkbox('Tavern', x[1], y[3], checked=True)
 
-    def make_checkbox(self, name, x, y, checked=False):
-        box = QtGui.QCheckBox(name, self.Window)
+    def make_checkbox(self, title, x, y, checked=False, name=None):
+        box = QtGui.QCheckBox(title, self.Window)
         # box.stateChanged.connect(func)
         box.move(x, y)
         box.setChecked(checked)
-        self.B[name] = box
+        self.B[title if name is None else name] = box
 
 
 class ComboBoxes(object):
@@ -140,15 +145,16 @@ class ComboBoxes(object):
         x = 200 if windows else 350
         spacing = 30 if windows else 40
         y = range(20, 10 * spacing, spacing)
-        self.create('Times', x, y[1], [5, 15, 1, 4, 8, 24])
+        self.create('Times', x, y[1], [5, 15, 1, 4, 8, 24], 1)
+        self.create('Times', x, y[2], [4, 8, 24, 48], 1, 'GoodTimes')
 
-    def create(self, name, x, y, items):
+    def create(self, title, x, y, items, ind, name=None):
         combo_box = QtGui.QComboBox(self.Window)
         combo_box.addItems([str(item) for item in items])
         combo_box.move(x, y)
         combo_box.resize(combo_box.minimumSizeHint())
-        combo_box.setCurrentIndex(1)
-        self.B[name] = combo_box
+        combo_box.setCurrentIndex(ind)
+        self.B[title if name is None else name] = combo_box
         # comboBox.activated[str].connect(self.style_choice)
 
 
@@ -163,7 +169,7 @@ class SpinBoxes(object):
         x = 200 if windows else 350
         spacing = 30 if windows else 40
         y = range(20, 10 * spacing, spacing)
-        self.create('Mopo', x, y[2], 1, 15, 5)
+        self.create('Mopo', x, y[3], 1, 15, 5)
 
     def create(self, name, x, y, minv, maxv, start=None, step=1):
         start = minv if start is None else start

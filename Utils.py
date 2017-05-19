@@ -45,3 +45,7 @@ def get_time(t):
 def calc_stocktimes(p1, p2):
     d = p2[0] - p1[0]
     return {5: (p1[0], p1[1]), 15: (p1[0] + d, p1[1]), 1: (p1[0] + 2 * d, p1[1]), 4: (p1[0], p1[1] + d), 8: (p1[0] + d, p1[1] + d), 24: (p1[0] + 2 * d, p1[1] + d)}
+
+def calc_goodtimes(p1, p2):
+    d = p2[0] - p1[0]
+    return {t: (p1[0] + i * d, p1[1]) for i, t in enumerate([4, 8, 24, 48])}

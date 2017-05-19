@@ -4,7 +4,7 @@ from time import sleep, time
 from keys import Keys
 from mouse import Mouse
 from argparse import ArgumentParser
-from Utils import finish_sound, get_time, calc_stocktimes
+from Utils import finish_sound, get_time, calc_stocktimes, calc_goodtimes
 from Production import Production
 from Gui import Gui, load_app, ex
 from ConfigParser import ConfigParser, NoOptionError
@@ -28,8 +28,10 @@ class FOE(Keys, Mouse):
         self.OffSpring = self.load_config('Offspring')
         self.XVector = self.load_xvec()
         self.Houses = Production(houses=True)
-        self.Provisions = Production(houses=False)
+        self.Provisions = Production()
+        self.Goods = Production(goods=True)
         self.StockTimes = self.load_stocktimes()
+        self.GoodTimes = self.load_goodtimes()
 
         # gui
         if load_gui:
@@ -61,15 +63,29 @@ class FOE(Keys, Mouse):
         lst = self.load_config('StockTimes')
         return calc_stocktimes(lst[:2], lst[2:])
 
+    def load_goodtimes(self):
+        lst = self.load_config('GoodTimes')
+        return calc_goodtimes(lst[:2], lst[2:])
+
     # ======================================
     # region map manipulation
-    def get_pos_from_mouse_pos(self):
+    def get_pos_from_mouse_pos(self, t=0):
+        sleep(t)
         x, y = self.get_mouse_position()
         # length from offspring
         x, y = x - self.OffSpring[0], y - self.OffSpring[1]
         x1 = x * self.XPix / (2. * self.XVector[0]) + y * self.XPix / (2. * self.XVector[1])
         y1 = -x * self.XPix / (2. * self.XVector[0]) + y * self.XPix / (2. * self.XVector[1])
+        if t:
+            print '({:1.0f}, {:1.0f})'.format(x1, y1)
         return x1, y1
+
+    def get_mouse_position(self, t=0):
+        sleep(t)
+        x, y = self.m.position()
+        if t:
+            print '({:1.0f}, {:1.0f})'.format(x, y)
+        return x, y
 
     def get_pix_pos(self, x, y):
         # return pixel values if pixel values are provided
@@ -140,30 +156,37 @@ class FOE(Keys, Mouse):
         self.move_to(x, y)
         self.press_alt_tab()
 
-    def farm_provisions(self):
-        for i, point in enumerate(self.Provisions.Points.iterkeys()):
+    def farm_goods(self):
+        self.farm_provisions(True)
+
+    def farm_provisions(self, goods=False):
+        production = self.Provisions if not goods else self.Goods
+        for i, point in enumerate(production.Points.iterkeys()):
             sleep(.2)
             self.press(*point) if not i else self.move_to(*point)
         sleep(.2)
-        self.release(*self.Provisions.Points.keys()[-1])
+        self.release(*production.Points.keys()[-1])
 
-    def plant_provisions(self, t=None, farm=None, timer=None, prnt=True):
-        t = int(self.get_box_entry('Times')) if t is None else t
-        farm = self.check('Farm') if farm is None else farm
+    def plant_provisions(self, t=None, farm=None, timer=None, prnt=True, goods=False):
+        t = int(self.get_box_entry('Times' if not goods else 'GoodTimes')) if t is None else t
+        farm = self.check('Farm' if not goods else 'GoodFarm') if farm is None else farm
         timer = self.check('Timer') if timer is None else timer
         self.goto_start_position()
         sleep(.2)
+        production = self.Provisions if not goods else self.Goods
+        times = self.StockTimes if not goods else self.GoodTimes
         if farm:
-            self.farm_provisions()
+            self.farm_provisions(goods)
             sleep(3)
-        for i, (point, typ) in enumerate(self.Provisions.Points.iteritems()):
+        for i, (point, typ) in enumerate(production.Points.iteritems()):
             sleep(.5)
             self.click(*point)
             sleep(1)
-            self.click(*self.StockTimes[t])
-            self.Provisions.add_production(typ, t)
+
+            self.click(*times[t])
+            production.add_production(typ, t)
         if prnt:
-            self.Provisions.print_production()
+            production.print_production()
         if timer:
             self.Gui.start_pbar(get_time(t))
             finish_sound()
