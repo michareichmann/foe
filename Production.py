@@ -9,6 +9,7 @@ from numpy import sign
 from Utils import is_int
 from ConfigParser import ConfigParser
 from json import loads
+from os.path import join
 
 
 class Production(object):
@@ -44,7 +45,7 @@ class Production(object):
 
 
 def read_points(name):
-    f = open(name)
+    f = open(join('config', name))
     lines = f.readlines()
     f.close()
     coods = OrderedDict()
@@ -63,7 +64,7 @@ def read_points(name):
 
 def load_productions(houses):
     p = ConfigParser()
-    p.read('production.conf')
+    p.read(join('config', 'production.conf'))
     dic = {}
     section = 'Houses' if houses else 'Provisions'
     for option in p.options(section):

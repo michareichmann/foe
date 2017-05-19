@@ -9,6 +9,7 @@ from Production import Production
 from Gui import Gui, load_app, ex
 from ConfigParser import ConfigParser, NoOptionError
 from json import loads
+from os.path import join
 
 
 __author__ = 'micha'
@@ -22,6 +23,7 @@ class FOE(Keys, Mouse):
         Keys.__init__(self)
         Mouse.__init__(self)
         self.Location = location
+        self.ConfigDir = 'config'
         self.XPix = 22.
         self.OffSpring = self.load_config('Offspring')
         self.XVector = self.load_xvec()
@@ -45,7 +47,7 @@ class FOE(Keys, Mouse):
 
     def load_config(self, section):
         conf = ConfigParser()
-        conf.read('Locations.conf')
+        conf.read(join(self.ConfigDir, 'Locations.conf'))
         try:
             return tuple(loads(conf.get(section, self.Location)))
         except NoOptionError:
@@ -133,6 +135,7 @@ class FOE(Keys, Mouse):
             self.press(*point) if not i else self.move_to(*point)
             self.Houses.add_production(typ)
         self.release(*points.keys()[-1])
+        sleep(.1)
         self.Houses.print_production()
         self.move_to(x, y)
         self.press_alt_tab()
