@@ -1,9 +1,11 @@
-15   7   Kuferei
+15   7  Kuferei
+14  13  uhrmacher
 29  16  segelmacher
 29  13  segelmacher
 29  10  segelmacher
 29  7   segelmacher
 29  4   Brauerei
 29  2   kuferei
-29  -2   kuferei
+29  -2  kuferei
 25  -3  Zuckerbackerei
+23  -3  buchsenmacher

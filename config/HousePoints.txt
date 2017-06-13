@@ -1,6 +1,6 @@
--8  15  12  Arkadenhaus
-16  15  6   Mansarddachhaus
-26  13  -18 Landhaus
--8  10  8   Landhaus
-8   10  3   Mansarddachhaus
+-8  15  18  Arkadenhaus
+26  13  -6  Arkadenhaus
+9   13  -9  Mansarddachhaus
+-8  10  11  Landhaus
 12  3       Renaissance-Villa
+5   -1      Landhaus
