@@ -1,6 +1,6 @@
--8  15  18  Arkadenhaus
-26  13  -6  Arkadenhaus
-9   13  -9  Mansarddachhaus
--8  10  11  Landhaus
-12  3       Renaissance-Villa
-5   -1      Landhaus
+-8  15  18   Arkadenhaus
+26  13  -10  Arkadenhaus
+5   13  -7   Pension
+-8  10       Viktorianisches-Haus
+-5  10  3    Landhaus
+-1  -3       Renaissance-Villa
