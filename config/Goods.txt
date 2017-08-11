@@ -1,5 +1,4 @@
-22  6   Drahtzieherei
-22  9   Drahtzieherei
-19  9   Kaffeerosterei
-25  6   Kaffeerosterei
-25  9   Kaffeerosterei
+22  10  Walfangstation
+26  10  Walfangstation
+26  7   Walfangstation
+22  7   Walfangstation
