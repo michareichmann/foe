@@ -25,7 +25,7 @@ class FOE(Keys, Mouse):
         self.Location = location
         self.ConfigDir = 'config'
         self.XPix = 22.
-        self.OffSpring = self.load_config('Offspring')
+        self.OffSpring = self.load_config('Gauge')[:2]
         self.XVector = self.load_xvec()
         self.Houses = Production(houses=True)
         self.Provisions = Production()
@@ -57,7 +57,7 @@ class FOE(Keys, Mouse):
             raise NoOptionError
 
     def load_xvec(self):
-        return tuple([x22 - self.OffSpring[i] for i, x22 in enumerate(self.load_config('X22'))])
+        return tuple([x22 - self.OffSpring[i] for i, x22 in enumerate(self.load_config('Gauge')[2:])])
 
     def load_stocktimes(self):
         lst = self.load_config('StockTimes')
