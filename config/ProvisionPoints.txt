@@ -5,8 +5,8 @@
 17  -3  chemiefabrik
 21  -3  chemiefabrik
 25  -3  chemiefabrik
--1  -3  buchsenmacher
--3  -3  buchsenmacher
--5  -3  buchsenmacher
+-9  -4  buchsenmacher
+-7  -3  buchsenmacher
+-6  -2  buchsenmacher
 -7  -3  buchsenmacher
 -9  -3  buchsenmacher
