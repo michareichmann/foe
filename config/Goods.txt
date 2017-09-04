@@ -1,4 +1,4 @@
-22  10  Walfangstation
-26  10  Walfangstation
-26  7   Walfangstation
-22  7   Walfangstation
+21  11  Walfangstation
+25  11  Walfangstation
+25  8   Walfangstation
+21  8   Walfangstation

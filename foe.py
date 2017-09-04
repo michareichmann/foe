@@ -214,13 +214,16 @@ class FOE(Keys, Mouse):
             self.farm_houses()
         print
 
-    def motivate(self):
+    def motivate_tavernate(self, mopo=True):
         lst = self.load_config('MoPo')
-        x, y = lst[2:4]
+        x, y = lst[2:4] if mopo else lst[:2]
         for _ in xrange(5):
             self.click(x, y)
             x -= lst[2] - lst[4]
-            sleep(1)
+            if not mopo:
+                sleep(1)
+                self.click(*self.load_config('Edge')[:2])  # closing tavern menu
+            sleep(1 if mopo else .2)
 
     def open_next_player_menu(self):
         lst = self.load_config('MoPo')
@@ -229,27 +232,13 @@ class FOE(Keys, Mouse):
         x -= (lst[2] - lst[4]) * 5
         self.click(x, y)
 
-    def tavernate(self):
-        lst = self.load_config('MoPo')
-        x, y = lst[:2]
-        for _ in xrange(5):
-            self.click(x, y)
-            x -= lst[2] - lst[4]
-            sleep(1)
-            # closing tavern menu
-            self.click(x, y)
-            sleep(.2)
-
     def mopo_tavern(self, n=None, mopo=None, tavern=None):
         x, y = self.get_mouse_position()
         mopo = self.check('Mopo') if mopo is None else mopo
-        tavern = self.check('Tavern') if tavern is None else tavern
+        # tavern = self.check('Tavern') if tavern is None else tavern
         n = self.get_box_value('Mopo') if n is None else n
         for _ in xrange(n):
-            if mopo:
-                self.motivate()
-            if tavern:
-                self.tavernate()
+            self.motivate_tavernate(mopo)
             self.open_next_player_menu()
             sleep(1)
         self.press_alt_tab()

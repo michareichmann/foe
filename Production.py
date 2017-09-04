@@ -67,7 +67,7 @@ def read_points(name):
         data = [int(i) for i in data if is_int(i)]
         data += [1] if len(data) == 2 else []
         for i in xrange(abs(data[2])):
-            coods[(data[0] + sign(data[2]) * 2 * i, data[1])] = typ
+            coods[(data[0] + sign(data[2]) * 3 * i, data[1])] = typ
     return coods
 
 
