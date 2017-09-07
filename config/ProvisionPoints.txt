@@ -1,11 +1,12 @@
--5  11  zuckerbackerei
+-6  15  apfelmuhle
+-7  11  zuckerbackerei
 -7   8  chemiefabrik
 -3   8  chemiefabrik
 1    8  chemiefabrik
 25   4  chemiefabrik
 25   1  chemiefabrik
-30  -3  chemiefabrik
--8  11  buchsenmacher
+28  -3  chemiefabrik
+4   15  buchsenmacher
 2   15  buchsenmacher
 0   15  buchsenmacher
 -2  15  buchsenmacher
