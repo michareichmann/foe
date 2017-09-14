@@ -1,5 +1,4 @@
  30   8  Walfangstation
  30   5  Walfangstation
  30   2  Walfangstation
--10  -3  Walfangstation
  -5  14  Maschinenfabrik
