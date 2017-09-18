@@ -4,5 +4,4 @@
  5   0  lampenfabrik
  5  -3  lampenfabrik
 -2  -3  lampenfabrik
--7   0  apfelmuhle
 -11  5  zuckerbackerei
