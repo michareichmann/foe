@@ -1,5 +1,3 @@
-10  14  4  Zinshaus
-23  14  2  Einfamilienhaus
-23  11 -6  Einfamilienhaus
- 9   7 -4  Einfamilienhaus
- 6   4  2  Einfamilienhaus
+-10  -1     Einfamilienhaus
+  9  11  6  Einfamilienhaus
+#24  14 -6  Einfamilienhaus
