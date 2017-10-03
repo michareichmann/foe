@@ -1,5 +1,5 @@
-30   5  Walfangstation
-30   2  Walfangstation
+-2   4  Schmelztauchwerk
+ 1   4  Schmelztauchwerk
 -8  14  Maschinenfabrik
 -2  14  Maschinenfabrik
  4  14  Maschinenfabrik
