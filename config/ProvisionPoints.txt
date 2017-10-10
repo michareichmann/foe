@@ -2,6 +2,5 @@
 16   5  lampenfabrik
 16   2  lampenfabrik
 10   2  lampenfabrik
- 4   2  lampenfabrik
 -11 19  apfelmuhle
 29   8  zuckerbackerei

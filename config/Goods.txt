@@ -1,5 +1,5 @@
--2   4  Schmelztauchwerk
- 1   4  Schmelztauchwerk
--8  14  Maschinenfabrik
--2  14  Maschinenfabrik
- 4  14  Maschinenfabrik
+-5   5  Schmelztauchwerk
+-2   5  Schmelztauchwerk
+13  14  Maschinenfabrik
+19  14  Maschinenfabrik
+21   6  Maschinenfabrik

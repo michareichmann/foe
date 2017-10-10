@@ -51,7 +51,7 @@ class FOE(Keys, Mouse):
         conf = ConfigParser()
         conf.read(join(self.ConfigDir, 'Locations.conf'))
         try:
-            return tuple(loads(conf.get(section, self.Location)))
+            return tuple(loads(conf.get(section, self.Location).split('#')[0]))
         except NoOptionError:
             print 'Could not find {l} in section {s}'.format(l=self.Location, s=section)
             raise NoOptionError
@@ -246,7 +246,7 @@ class FOE(Keys, Mouse):
 
 
 if __name__ == '__main__':
-    locations = ['ETH', 'home', 'yoga', 'psi', 'analysis']
+    locations = ['ETH', 'home', 'yoga', 'psi', 'analysis', 'basa']
     parser = ArgumentParser()
     parser.add_argument('location', nargs='?', type=int, default=1)
     parser.add_argument('-g', '--gui', action='store_true')
